@@ -10,16 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Buildozer
-        run: pip install --upgrade buildozer Cython
-
-      - name: Build APK
-        run: buildozer android debug
+      - name: Build APK with Buildozer Docker
+        run: |
+          docker run --rm \
+            --volume "$(pwd)":/home/user/hostcwd \
+            --workdir /home/user/hostcwd \
+            kivy/buildozer:latest \
+            android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
