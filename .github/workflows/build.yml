@@ -10,13 +10,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build APK with Buildozer Docker
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install system dependencies
         run: |
-          docker run --rm \
-            --volume "$(pwd)":/home/user/hostcwd \
-            --workdir /home/user/hostcwd \
-            kivy/buildozer:latest \
-            android debug
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            git zip unzip \
+            autoconf libtool pkg-config \
+            zlib1g-dev libncurses-dev cmake \
+            libffi-dev libssl-dev
+
+      - name: Install Buildozer
+        run: pip install --upgrade buildozer Cython
+
+      - name: Build APK
+        run: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
